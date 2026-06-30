@@ -1,0 +1,103 @@
+#' Comprehensive Sports Features Dataset
+#'
+#' A rich, synthetic sports analytics dataset containing tracking metrics,
+#' environmental contexts, physiological markers, and performance data for athletes.
+#'
+#' @title Comprehensive Sports Features Dataset
+#' @format A tibble or data frame with 25 variables describing athlete sessions and performance metrics:
+#' \describe{
+#'   \item{session_id}{Unique alphanumeric identifier for each training session.}
+#'   \item{athlete_id}{Unique alphanumeric identifier for each athlete.}
+#'   \item{datetime}{Timestamp of when the training session occurred.}
+#'   \item{activity_type}{Type of exercise performed (e.g., running, cycling, swimming).}
+#'   \item{region}{Geographical area where the session took place.}
+#'   \item{distance_km}{Total distance covered during the session in kilometers.}
+#'   \item{weather_type}{Weather condition during the session (e.g., sunny, rainy, cloudy).}
+#'   \item{temperature_c}{Ambient outdoor temperature in degrees Celsius.}
+#'   \item{personal_status}{Pre-activity physical or mental status reported by the athlete.}
+#'   \item{is_group_activity}{Logical indicator (TRUE/FALSE) if the session was done with a group.}
+#'   \item{gender}{Categorical gender of the athlete.}
+#'   \item{age}{Age of the athlete in years.}
+#'   \item{base_fitness}{Baseline fitness score of the athlete.}
+#'   \item{base_speed}{Baseline average speed capability of the athlete.}
+#'   \item{base_stamina}{Baseline stamina level of the athlete.}
+#'   \item{base_weight}{Baseline body weight of the athlete in kilograms.}
+#'   \item{resting_heart_rate}{Baseline resting heart rate in beats per minute (bpm).}
+#'   \item{device_type}{Type of tracking device used during the session.}
+#'   \item{speed_kmh}{Average speed maintained throughout the session in km/h.}
+#'   \item{duration_min}{Total duration of the training session in minutes.}
+#'   \item{heart_rate_avg}{Average heart rate monitored during the session in bpm.}
+#'   \item{calories_burned}{Estimated total energy expenditure in kilocalories (kcal).}
+#'   \item{exhaustion_level}{Subjective exhaustion level reported after the session.}
+#'   \item{hydration_status}{Hydration level (\%) recorded during or after the session.}
+#'   \item{fatigue_score}{Calculated post-activity fatigue accumulation score.}
+#' }
+#' @source Synthesized sports features analytics framework.
+#' @importFrom lme4 lmer
+#' @examples
+#' \donttest{
+#' library(tidyverse)
+#' library(lme4)
+#'
+#' # Load the package data
+#' data("sports_features")
+#'
+#' # Downsample data for the example to ensure fast execution time (< 2.5s)
+#' demo_data <- head(sports_features, 500)
+#'
+#' # ----------------------------------------------------
+#' # DEMO 1: Linear Regression (Fixed Effects)
+#' # Predicting fatigue score based on workload metrics
+#' # ----------------------------------------------------
+#' lm_model <- lm(fatigue_score ~ distance_km + duration_min + speed_kmh + temperature_c,
+#'                data = demo_data)
+#'
+#' summary(lm_model)
+#'
+#' # ----------------------------------------------------
+#' # DEMO 2: Linear Mixed-Effects Model (Hierarchical MML)
+#' # Controlling for variation across individual athletes (athlete_id)
+#' # ----------------------------------------------------
+#' mml_model <- lmer(fatigue_score ~ distance_km + duration_min + speed_kmh + temperature_c +
+#'                     (1 | athlete_id),
+#'                   data = demo_data)
+#' summary(mml_model)
+#' }
+"sports_features"
+
+
+#' Comprehensive Sports Features Dataset (With Missing Values)
+#'
+#' A variant of the core sports analytics dataset containing structured missingness
+#' (NA values) across performance tracking columns to demonstrate imputation workflows.
+#'
+#' @title Comprehensive Sports Features Dataset (With Missing Values)
+#' @format A tibble or data frame with 25 variables containing structured missing values.
+#' @source Synthesized sports features analytics framework.
+"sports_features_missing"
+
+
+#' Access Sports Feature Datasets
+#'
+#' A convenient helper function to quickly load and return the package's internal
+#' sports features data assets directly into an active variable.
+#'
+#' @param type A character string specifying which dataset variant to load:
+#'   \code{"complete"} (default) or \code{"missing"}.
+#' @return A tibble/data.frame containing the requested sports feature dataset.
+#' @export
+#' @examples
+#' # Get the clean complete dataset
+#' clean_data <- get_sportsdata(type = "complete")
+#'
+#' # Get the dataset containing systematic missingness
+#' missing_data <- get_sportsdata(type = "missing")
+get_sportsdata <- function(type = c("complete", "missing")) {
+  type <- match.arg(type)
+
+  if (type == "complete") {
+    return(sports_features)
+  } else if (type == "missing") {
+    return(sports_features_missing)
+  }
+}

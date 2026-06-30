@@ -1,0 +1,13 @@
+6293372304e24014ee596854f28eae0f *DESCRIPTION
+5115bcb05debcc681c47507c10196ba0 *LICENSE
+19d8ad181eb6a280aefec026d53ee3c3 *NAMESPACE
+8fabe95a73fae52da24888f3511f3e14 *R/data.R
+3f359480248664a4180dee0ad5fd049b *R/sportsfeatures-package.R
+6359da90a60aa2c88475eb9afb5de4b1 *R/utils.R
+533839446f70bde34a1050627ce80586 *build/partial.rdb
+c1cb0e1388e8b0241c4c22435d5832ae *data/sports_features.rda
+7f7f8d9129514337c5d8d2bbc6299693 *data/sports_features_missing.rda
+59494d00b50eeb204bb95cb38ea2fd94 *man/get_sportsdata.Rd
+051a50d7638517c5bf25127a6bdb0cf0 *man/sports_features.Rd
+7e416a53e4698caf1fcd2ccceeb0edb1 *man/sports_features_missing.Rd
+05a408fe8081b6747b0f9f16e477a938 *man/sportsfeatures-package.Rd
