@@ -5,7 +5,7 @@
 \alias{sports_features_missing}
 \title{Comprehensive Sports Features Dataset (With Missing Values)}
 \format{
-A tibble or data frame with 25 variables containing structured missing values.
+A tibble or data frame with 42 variables containing structured missing values.
 }
 \source{
 Synthesized sports features analytics framework.

@@ -2,7 +2,7 @@ Package: sportsfeatures
 Type: Package
 Title: Longitudinal Sports Analytics Asset and Workload Feature
         Processing
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person(
     given = "Mohammad",
     family = "Abbas",
@@ -27,8 +27,8 @@ LazyData: true
 Config/roxygen2/version: 8.0.0
 Config/Needs/editorial: MNAR Buuren et al
 NeedsCompilation: no
-Packaged: 2026-06-24 19:39:55 UTC; abbasxma
+Packaged: 2026-09-14 09:04:51 UTC; ma_ab
 Author: Mohammad Abbas [aut, cre]
 Maintainer: Mohammad Abbas <ma.abbas3107@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-06-30 20:00:02 UTC
+Date/Publication: 2026-09-14 09:20:02 UTC
