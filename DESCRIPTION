@@ -1,34 +1,24 @@
 Package: sportsfeatures
-Type: Package
-Title: Longitudinal Sports Analytics Asset and Workload Feature
-        Processing
-Version: 0.2.0
-Authors@R: person(
-    given = "Mohammad",
-    family = "Abbas",
-    role = c("aut", "cre"),
-    email = "ma.abbas3107@gmail.com"
-  )
-Description: A synthetic, longitudinal athletic dataset generated through a
-    transparent, rule-based simulation engine. Captures individual activity
-    sessions across multiple athletes, environmental conditions, and physiological
-    responses. Specifically designed as an alternative to legacy teaching
-    datasets by introducing realistic hierarchical repeated measures, complex
-    two-way covariate interactions, and a deliberate Missing Not At Random
-    (MNAR) tracking mechanism suitable for advanced imputation workflows. Methodologies
-    implemented are based on van Buuren (2018) <doi:10.1201/9780429492259> 
-    and Bates et al. (2015) <doi:10.18637/jss.v067.i01>.
+Title: Simulation Framework for Sports Physiology and Analytics
+Version: 0.3.0
+Authors@R: 
+    person("Mohammad", "Abbas",
+           email = "ma.abbas3107@gmail.com",
+           role = c("aut", "cre"))
+Description: Provides a rule-based simulation environment for modeling
+    real-world athlete performance, dynamic training sessions, hierarchical
+    variance, and missing telemetry data.
 License: MIT + file LICENSE
 Depends: R (>= 4.1.0)
-Imports: tibble, mice, modelsummary, lme4
-Suggests: tidyverse
+Imports:
+Suggests: dplyr, ggplot2, glmnet, here, knitr, lme4, lmerTest, mice,
+        quarto, ranger, rmarkdown, testthat (>= 3.0.0)
+VignetteBuilder: quarto
 Encoding: UTF-8
-LazyData: true
-Config/roxygen2/version: 8.0.0
-Config/Needs/editorial: MNAR Buuren et al
+Config/roxygen2/version: 8.1.0
 NeedsCompilation: no
-Packaged: 2026-09-14 09:04:51 UTC; ma_ab
+Packaged: 2026-09-28 10:43:41 UTC; ma_ab
 Author: Mohammad Abbas [aut, cre]
 Maintainer: Mohammad Abbas <ma.abbas3107@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-09-14 09:20:02 UTC
+Date/Publication: 2026-09-28 11:00:02 UTC

@@ -1,0 +1,469 @@
+---
+title: "R0: Foundations of the sportsfeatures Analytical Framework"
+author: "Mohammad Abbas"
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{R0: Foundations of the sportsfeatures Analytical Framework}
+  %\VignetteEngine{quarto::html}
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: false
+    theme: flatly
+    code-fold: false
+  pdf:
+    toc: true
+    toc-depth: 3
+    pdf-engine: xelatex
+    fig-cap-location: top
+    tbl-cap-location: top
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{tocloft}
+        \usepackage{float}
+        \floatplacement{figure}{H}
+  docx:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    fig-cap-location: bottom
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+#| warning: false
+#| message: false
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(lme4)
+library(lmerTest)
+library(glmnet)
+library(mice)
+library(ranger)
+library(here)
+
+#| message: false 
+#| warning: false
+#| 
+
+data("sports_features_missing", package = "sportsfeatures")
+
+df_sports <- sports_features_missing %>%
+type.convert(as.is = TRUE)
+
+```
+
+## Overview
+
+The `sportsfeatures analytical framework` introduces a rule‑based
+simulation environment designed to meet the challenges of modern
+statistical training. The primary purpose of `sportsfeatures` is to
+provide a realistic and interpretable environment for learning modern
+statistical modelling and data science techniques. The framework enables
+users to explore hierarchical data structures, missing-data mechanisms,
+feature engineering, predictive modelling, and latent structure
+discovery within a coherent sporting context.
+
+## Why sportsfeatures?
+
+Modern statistical education often relies on small, highly curated
+datasets that illustrate individual methods in isolation. While useful
+for teaching specific techniques, such datasets rarely capture the
+complexities encountered in real analytical settings. Hierarchical
+structures, missing data, behavioural variability, feature engineering,
+and latent patterns are frequently absent or heavily simplified. The
+sportsfeatures framework was designed to address this gap by providing a
+realistic yet controlled simulation environment for statistical
+learning. Rather than focusing on a single analytical objective, the
+framework integrates multiple challenges commonly encountered in applied
+data science, including multilevel data structures, non constant
+variance, engineered features, and missing-data mechanisms. Sport and
+human performance provide a particularly useful context for this
+purpose. Athletic data naturally contain repeated observations,
+individual baselines, environmental influences, and physiological
+variability. These characteristics create a rich setting for exploring
+modern modelling techniques while maintaining an intuitive connection to
+real-world processes. The goal of sportsfeatures is not merely to
+generate synthetic observations but to create an extensible analytical
+framework. The resulting environment allows users to progress from
+foundational concepts through prediction, explanation, discovery, and
+dimensional reduction, forming the basis of the R-series vignette
+pathway presented throughout this package.
+
+## Core Premise
+
+Stable Subject Baselines: Each athlete maintains stable physiological
+characteristics.
+
+Dynamic Session Evolution: Training sessions vary across environmental,
+physiological, and personal conditions.
+
+Controlled Realism: Incorporates domain rules, controlled randomness,
+and a deliberate Missing Not At Random (MNAR) mechanism tied to device
+usage.
+
+### Framework Structure
+
+**Phase 1** – Simulation Pipeline
+
+Conceptual idea and physiological hypothesis
+
+Rule‑based simulation engine
+
+Core dataset: 500 observations × 30 variables
+
+**Phase 2** – Feature Engineering & Data Enhancement
+
+Enhanced dataset: 500 × 42 variables
+
+Key analytical measures: efficiency, workload normalisation, baselines,
+variability
+
+**Framework Core** – Three Analytical Pillars
+
+**Pillar 1**: Variance Structure – within‑ vs between‑athlete
+fluctuations **Pillar 2**: MNAR Missingness – non‑random dropout due to
+fatigue/injury **Pillar 3**: Derived Variables – feature engineering
+transforming metrics into insights
+
+### Vignette Research Pathway
+
+R0 – Foundation → R1 – Predict → R2 – Explain → R3 – Discover → R4 –
+Reduce
+
+![Conceptual Overview of the R0
+AnalyticalFramework](./images/Figure-1_Infographics.png){#fig-core-workframe}
+Figure 1.1 Conceptual Overview of the R0 Analytical Framework
+
+As shown in Figure 1.1, the multi-phase structure of the
+`sportsfeatures` environment illustrates how rule‑based simulation, data
+enhancement, and analytical pillars integrate to form the foundation for
+the R‑series vignettes.
+
+## Pillar 1: Variance Structure & Hierarchical Non‑Constant Spread
+
+Human physiology and athletic behaviour are inherently dynamic and
+non‑linear. When performance metrics are analysed using traditional
+linear models, non‑constant variance (heteroscedasticity) naturally
+emerges — a reflection of biological complexity rather than a modelling
+flaw.
+
+### Baseline Illustration
+
+A simple Ordinary Least Squares (OLS) model relating energy expenditure
+to session volume serves as a baseline to demonstrate non-constant
+variance.
+
+$$\text{Calories Burned} = \beta_0 + \beta_1(\text{Distance KM}) + \varepsilon$$
+
+```{r}
+df_lm <- df_sports %>%
+  filter(!is.na(calories_burned), !is.na(distance_km))
+
+model_simple <- lm(calories_burned ~ distance_km, data = df_lm)
+
+```
+
+![Bivariate Scatterplot of Calories Burned vs
+DistanceKM](./images/Figure-2_model_simple.png){#fig-scatterplot} Figure
+1.2 Bivariate Scatterplot of Calories(kcal) Burned vs Distance(km)
+
+Figure 1.2 demonstrates a relatively strong positive trend between total
+energy expenditure (kcal) and distance covered (km). However, looking
+closely at the spread of data points, it can be seen that the spread is
+fanning out, suggesting the presence of non-constant variance
+(heteroscedasticity).
+
+Figure 1.3 below confirms the presence of non-constant variance. The
+plot also reveals that as training volume increases, the spread of
+observations widens — signalling the influence of physiological,
+behavioural, and environmental factors.
+
+![Residual Diagnostics for Simple OLS
+Model](./images/Figure-3_diagnostic_plot.png){#fig-diagnostics} Figure
+1.3 Residual Diagnostics for Simple OLS Model
+
+### Table 1.1: Simple Linear Regression Model Coefficients
+
+| **Characteristic** | **Beta** | **95% CI** | **p-value** |
+|:-------------------|:---------|:-----------|:------------|
+| (Intercept)        | -29      | -95, 38    | 0.4         |
+| Distance (km)      | 59       | 53, 65     | \<0.001     |
+
+**Adjusted R² 47.6%**
+
+While the simple regression model calories_burned \~ distance_km
+captures a substantial proportion of the variation in calorie
+expenditure (Adjusted R² = 47.6%), considerable unexplained variation
+remains. Importantly, the model assumes that all observations are
+independent and that any remaining variability can be treated as random
+error. In practice, however, repeated training sessions are recorded
+from the same athletes. Individual differences in fitness, physiology,
+training habits, and recovery status introduce structure into the
+residual variation. Consequently, part of the unexplained variance
+reflects meaningful athlete-level differences rather than pure noise. To
+distinguish within-athlete fluctuations from between-athlete
+differences, the `sportsfeatures` framework adopts a hierarchical
+perspective. This transition motivates the mixed-effects modelling
+approaches explored in later vignettes, where sources of variation can
+be explicitly partitioned and interpreted.
+
+## Hierarchical Variance Decomposition
+
+Because observations are nested within athletes, mixed-effects models
+provide a natural mechanism for separating within-athlete variability
+from between-athlete differences.
+
+In the `sportsfeatures` framework, this non‑constant spread arises from
+nested sources of variability:
+
+Within‑Athlete vs Between‑Athlete Variation: Repeated sessions within
+individuals differ from those across athletes with distinct fitness
+baselines and metabolic efficiencies.
+
+Contextual & Environmental Drivers: Terrain, weather, fatigue,
+hydration, and readiness states introduce additional layers of variance.
+
+Rather than treating these fluctuations as random noise,
+`sportsfeatures` partitions them through hierarchical and mixed‑effects
+modelling (see R1–R2), enabling structured interpretation of nested
+dependencies.
+
+This aligns with Figure 1.1, where Variance Structure forms the apex of
+the framework’s three analytical pillars.
+
+### Modelling Implications
+
+Non-constant variance in `sportsfeatures` is not a defect but a hallmark
+of realism. Traditional approaches often suppress heteroscedasticity
+through transformations; here, it is embraced as evidence of biological
+and behavioural variability across athletes and training contexts.
+
+Recognising this variability has important modelling implications.
+Statistical methods that account for hierarchical structure, repeated
+observations, and athlete-specific effects are often more appropriate
+than approaches that assume complete independence among observations.
+Consequently, the framework provides a natural setting for exploring
+mixed-effects models, variance decomposition, and athlete-level
+heterogeneity in subsequent vignettes.
+
+Within the `sportsfeatures` framework, variability is treated not merely
+as noise to be removed but as information to be understood. This
+perspective underpins the analytical progression from prediction (R1) to
+explanation (R2), discovery (R3), and dimensional reduction (R4).
+
+## Pillar 2: Missing Not At Random (MNAR) & MICE Imputation
+
+Missing data is an inherent feature of real‑world sports telemetry. The
+`sportsfeatures` framework deliberately embeds a deterministic Missing
+Not At Random (MNAR) mechanism to mirror realistic sensor dropout and
+athlete fatigue patterns.
+
+MICE was selected because it preserves multivariate relationships across
+mixed physiological metrics while quantifying uncertainty through
+multiple imputations. Unlike single-value imputation approaches, MICE
+generates multiple plausible datasets, allowing uncertainty associated
+with missing values to be propagated into subsequent analyses. This
+makes it particularly well suited to the `sportsfeatures` framework,
+where physiological variables are often correlated and influenced by
+common underlying processes.
+
+### Wearable Device Dropout Mechanics
+
+Whenever `device_type == "none"`, key physiological streams —
+`heart_rate_avg`,`hydration_status` and `exhaustion_level` — are absent
+by design. This configuration replicates common wearable data gaps
+caused by device failure, non‑compliance, or extreme fatigue.
+
+Across the full dataset, this mechanism introduces 97 missing values (≈
+19.4%) per affected variable, creating a controlled environment for
+testing imputation strategies.
+
+### Imputation Workflow
+
+To preserve the multivariate coherence of athletic performance data,
+missing entries are handled using Multivariate Imputation by Chained
+Equations (MICE) with predictive mean matching (PMM):
+
+```{r}
+#| output: false
+#| message: false
+#| warning: false
+mice_vars <- df_sports %>%
+  select(calories_burned, distance_km, duration_min,
+         heart_rate_avg, exhaustion_level, hydration_status, device_type)
+
+mice_model <- mice(mice_vars, m = 5, maxit = 20,
+                   method = "pmm", seed = 123, quiet = TRUE)
+```
+
+This iterative process models each variable conditionally, drawing
+plausible replacements that maintain physiological realism and
+statistical consistency.
+
+### Diagnostic Verification: Iterative Chain Convergence
+
+The convergence plot (Figure 1.4) illustrates how the imputation chains
+stabilize across 20 iterations for key metrics — `calories_burned`,
+`heart_rate_avg`, and `hydration_status`. Left panels show mean
+trajectories; right panels show standard deviations. Consistent
+crossover among independent chains indicates healthy mixing and
+convergence toward a stationary imputation distribution.
+
+![Convergence Diagnostics for Mice Imputation
+Chains](./images/Figure-4_Mice_convergence.png){#fig-Mice_convergence}
+Figure 1.4 MICE Convergence Diagnostics
+
+### Interpretation
+
+- Mean & Variance Stabilization: The imputed streams interweave
+  smoothly, confirming robust chain mixing and an absence of systemic
+  drift.
+
+- Physiological Coherence: The completed data vectors remain
+  statistically valid and biologically plausible, ensuring unbiased
+  downstream modelling.
+
+- Framework Integration: This pillar complements Variance Structure
+  (Pillar 1) by addressing data incompleteness — reinforcing the realism
+  of the `sportsfeatures` simulation pipeline.
+
+## Pillar 3: Derived Variables & Physiological Constructs
+
+Where Pillar 1 explains variability and Pillar 2 addresses
+incompleteness, Pillar 3 transforms raw measurements into interpretable
+physiological constructs.
+
+Derived variables form the dynamic layer of the `sportsfeatures`
+framework. While core variables describe observable training outcomes
+such as distance covered, session duration, or energy expenditure, they
+provide only a partial view of athlete performance. Derived variables
+extend these measurements by capturing underlying physiological
+processes, workload characteristics, and athlete-specific deviations
+from baseline behaviour.
+
+Within the `sportsfeatures` framework, feature engineering serves as a
+bridge between raw observations and analytical insight. By transforming
+primary measurements into meaningful analytical features, derived
+variables support prediction, explanation, discovery, and dimensional
+reduction across the R-series vignettes.
+
+Consequently, derived variables do not simply increase the number of
+predictors available for analysis; they provide mechanisms through which
+variability can be understood, modelled, and interpreted.
+
+### Table 1.2 summarises the principal derived variables within the framework, along with their hierarchical classification and intended role in modelling.
+
+Some variables capture session-level physiological responses, whereas
+others represent athlete-level baselines or deviations from those
+baselines. Together, they provide the analytical bridge between raw
+observations and higher-level statistical interpretation.
+
+| Derived Variable | Level Classification | Role in Modelling Process |
+|--------------------|------------------|----------------------------------|
+| vo~2~\_utilisation | Level‑1 (Session) | Normalises aerobic demand relative to VO₂_max; quantifies session intensity as a fraction of physiological capacity. |
+| efficiency_index | Level‑1 (Session) | Captures cardiovascular economy by relating oxygen uptake to heart rate; used to assess aerobic efficiency and readiness. |
+| hr_reserve | Level‑1 (Session) | Represents net cardiovascular elevation above resting state; proxy for internal load and autonomic strain. |
+| aerobic_efficiency | Level‑1 (Session) | Indicates aerobic contribution per unit heart rate; evaluates aerobic system utilisation and metabolic economy. |
+| fatigue_per_km | Level‑1 (Session) | Normalises fatigue accumulation by distance; models workload‑adjusted fatigue dynamics. |
+| athlete_mean_fatigue | Level‑2 (Between‑Athlete) | Chronic fatigue baseline; separates stable athlete‑level fatigue differences from session‑level variation. |
+| fatigue_deviation | Level‑1 (Centered) | Within‑athlete centred fatigue; isolates session‑specific deviations from an athlete’s personal fatigue norm. |
+| athlete_mean_distance | Level‑2 (Between‑Athlete) | Chronic volume baseline; captures habitual training load differences between athletes. |
+| distance_centered | Level‑1 (Centered) | Within‑athlete centred distance; models session‑specific deviations from typical training volume. |
+| pace_min_km | Level‑1 (Session) | Represents external speed demand; used to model performance intensity and pacing strategy. |
+| calories_per_km | Level‑1 (Session) | Normalises metabolic cost by distance; quantifies energetic efficiency and workload economy. |
+| calories_per_min | Level‑1 (Session) | Represents metabolic burn rate; models internal metabolic intensity independent of distance. |
+
+### Notes on Multilevel Classification
+
+::: callout-note
+- **Level‑1 (Session level):** varies *within* athlete across sessions
+- **Level‑2 (Athlete level):** stable *between* athletes; group‑level
+  baselines
+- **Level‑1 (Centered):** session‑level deviations from Level‑2
+  baselines
+:::
+
+![Evolution from Simulation to Feature
+Engineering](./images/Figure-5_evolution.png){#fig-evo} Figure 1.5
+Evolution from Simulation to Feature Engineering
+
+As illustrated in Figure 1.5, the `sportsfeatures` framework evolves
+through three stages:
+
+- Simulation Dataset (Stage 1): establishes baseline synthetic
+  behaviour.
+
+- Core Expansion (Stage 2): introduces physiological depth through
+  additional subject-level characteristics.
+
+- Feature Engineering (Stage 3): generates twelve derived variables that
+  transform raw measurements into analytical constructs.
+
+The derived variables generated during Stage 3 serve distinct analytical
+purposes within the framework. Some variables quantify physiological
+efficiency, others capture workload intensity, chronic athlete
+baselines, or session-specific deviations from those baselines.
+Collectively, they provide the mechanisms through which variability can
+be explored, explained, and modelled.
+
+![Derived variables
+map](images/Figure-6_derived_variables.png){#fig-derived} Figure 1.6
+Derived Variables Functional Map
+
+These constructs — such as `Heart Rate Reserve`, `Fatigue Deviation`,
+`VO₂ Utilisation`, and `Efficiency Index` — act as mechanism generators.
+They reveal the underlying processes driving variability in human
+performance, allowing the framework to decompose, model, and interpret
+fluctuations rather than treat them as noise.
+
+The derived variables support sportsfeatures' transition from a dataset
+to a fully functional framework, thereby enabling hierarchical
+modelling, interaction profiling, and advanced statistical exploration
+across vignettes R1 to R4.
+
+### What Next? From Framework to Analytical Discovery
+
+The `sportsfeatures` framework establishes a structured foundation that
+transforms raw athletic telemetry into biological signals. With
+individual baseline variance partitioned, missingness appropriately
+mapped, and 12 feature domains fully established, `sportsfeatures`
+evolves from a dataset into an extensible analytical framework.
+
+![Framework to analytical
+discovery](images/./Figure-7_infographics.png){#fig-discovery} Figure
+1.7 Framework to Analytical Discovery
+
+This sets the stage for a four-part empirical progression across **R1
+through R4**, as illustrated in Figure 1.7:
+
+- **R1 (Predict):** Evaluating mechanical efficiency against athlete
+  readiness using predictive multilevel frameworks.
+
+- **R2 (Explain):** Deconstructing cardiorespiratory cost and
+  partitioning within- versus between-athlete variance.
+
+- **R3 (Discover):** Uncovering hidden physiological taxonomies through
+  unsupervised profiling.
+
+- **R4 (Reduce):** Isolating key latent dimensions across dynamic
+  training variables using factor reduction.
+
+### Concluding Remarks
+
+R0 establishes the conceptual foundations of the `sportsfeatures`
+framework by introducing its simulation architecture, variance
+structure, missing-data mechanisms, and derived-variable ecosystem.
+Together, these components create a coherent analytical environment that
+supports increasingly sophisticated statistical investigations. The
+subsequent vignettes build upon this foundation, progressing from
+prediction and explanation to discovery and dimensional reduction within
+a unified modelling framework.

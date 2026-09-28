@@ -1,9 +1,9 @@
-#' Comprehensive Sports Features Dataset
+#' Comprehensive Sports Features Dataset (With Missing Values)
 #'
-#' A rich, synthetic sports analytics dataset containing tracking metrics,
-#' environmental contexts, physiological markers, and performance data for athletes.
+#' A variant of the core sports analytics dataset containing structured missingness
+#' (NA values) across performance tracking columns to demonstrate imputation workflows.
 #'
-#' @title Comprehensive Sports Features Dataset
+#' @title Comprehensive Sports Features Dataset (With Missing Values)
 #' @format A tibble or data frame with 42 variables describing athlete sessions and performance metrics:
 #' \describe{
 #'   \item{session_id}{Unique alphanumeric identifier for each training session.}
@@ -49,72 +49,9 @@
 #'   \item{calories_per_km}{Normalises metabolic cost by distance; quantifies energetic efficiency and workload economy.}
 #'   \item{calories_per_min}{Represents metabolic burn rate; models internal metabolic intensity independent of distance.}
 #' }
-#' @source Synthesized sports features analytics framework.
-#' @importFrom lme4 lmer
-#' @examples
-#' \donttest{
-#' library(tidyverse)
-#' library(lme4)
-#'
-#' # Load the package data
-#' data("sports_features")
-#'
-#' # Downsample data for the example to ensure fast execution time (< 2.5s)
-#' demo_data <- head(sports_features, 500)
-#'
-#' # ----------------------------------------------------
-#' # DEMO 1: Linear Regression (Fixed Effects)
-#' # Predicting fatigue score based on workload metrics
-#' # ----------------------------------------------------
-#' lm_model <- lm(fatigue_score ~ distance_km + duration_min + speed_kmh + temperature_c,
-#'                data = demo_data)
-#'
-#' summary(lm_model)
-#'
-#' # ----------------------------------------------------
-#' # DEMO 2: Linear Mixed-Effects Model (Hierarchical MML)
-#' # Controlling for variation across individual athletes (athlete_id)
-#' # ----------------------------------------------------
-#' mml_model <- lmer(fatigue_score ~ distance_km + duration_min + speed_kmh + temperature_c +
-#'                     (1 | athlete_id),
-#'                   data = demo_data)
-#' summary(mml_model)
-#' }
-"sports_features"
-
-
-#' Comprehensive Sports Features Dataset (With Missing Values)
-#'
-#' A variant of the core sports analytics dataset containing structured missingness
-#' (NA values) across performance tracking columns to demonstrate imputation workflows.
-#'
-#' @title Comprehensive Sports Features Dataset (With Missing Values)
-#' @format A tibble or data frame with 42 variables containing structured missing values.
+#' @docType data
+#' @keywords datasets
+#' @name sports_features_missing
+#' @usage data(sports_features_missing)
 #' @source Synthesized sports features analytics framework.
 "sports_features_missing"
-
-
-#' Access Sports Feature Datasets
-#'
-#' A convenient helper function to quickly load and return the package's internal
-#' sports features data assets directly into an active variable.
-#'
-#' @param type A character string specifying which dataset variant to load:
-#'   \code{"complete"} (default) or \code{"missing"}.
-#' @return A tibble/data.frame containing the requested sports feature dataset.
-#' @export
-#' @examples
-#' # Get the clean complete dataset
-#' clean_data <- get_sportsdata(type = "complete")
-#'
-#' # Get the dataset containing systematic missingness
-#' missing_data <- get_sportsdata(type = "missing")
-get_sportsdata <- function(type = c("complete", "missing")) {
-  type <- match.arg(type)
-  
-  if (type == "complete") {
-    return(sports_features)
-  } else if (type == "missing") {
-    return(sports_features_missing)
-  }
-}
